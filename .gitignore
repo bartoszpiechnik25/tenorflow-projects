@@ -3,3 +3,4 @@ data/
 .ipynb_checkpoints/
 saved_models/
 __pycache__/
+logs/
