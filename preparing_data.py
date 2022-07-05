@@ -3,6 +3,9 @@ import os
 import sys
 from PIL import Image
 from random import sample
+import matplotlib.pyplot as plt
+import random
+from shutil import move
 
 def unzip_data(archive_path, unzip_path, delete_archive=False):
     """
@@ -80,3 +83,45 @@ def print_size(dir):
         image_p = sample(os.listdir(directory_path), 1)[0]
         image = Image.open(os.path.join(directory_path, image_p))
         print(f"Random image size from {directory} directory is: {image.size, image.mode}")
+
+
+def split_test_val(test_path, validation_path, split_size):
+    """
+    Split test set to train/validation set with specified size
+
+    Args:
+      test_path (string): directory path containing test samples
+      validation_path (string): path to be validation directory
+      split_size (float): portion of the dataset to be used for validation
+
+    Returns:
+      None
+    """
+    test_dirs = os.listdir(test_path)
+    
+    for dir in test_dirs:
+        path = os.path.join(test_path, dir)
+        samples_test = os.listdir(path)
+        num_samples = int(len(samples_test) * split_size)
+        shuffled_dir = random.sample(samples_test, len(samples_test))
+
+        validation_dir = os.path.join(validation_path, dir)
+        os.makedirs(validation_dir)
+        for img in shuffled_dir[:num_samples]:
+            img_path = os.path.join(path, img)
+            img_val_path = os.path.join(validation_dir, img)
+            move(img_path, img_val_path)
+
+
+def plot_learning(model, train_param, val_param, xtitle, ytitle, plot_title, label_1, label_2):
+    plt.figure(dpi=80, figsize=(10,6))
+    plt.plot(model.history[train_param],
+            label=label_1,
+            color='darkorange')
+    plt.plot(model.history[val_param],
+            label=label_2,
+            color='skyblue')
+    plt.legend()
+    plt.title(plot_title)
+    plt.xlabel(xtitle)
+    plt.ylabel(ytitle)
